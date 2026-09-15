@@ -7,7 +7,7 @@ export type AuthResult = {
   user?: User;
 };
 
-export async function authenticatedClient(req: Request): Promise<AuthResult> {
+export async function authenticatedClient(req: Request, bucket?: string): Promise<AuthResult> {
   const authorization = req.headers.get("Authorization");
   if (!authorization?.startsWith("Bearer ")) return { response: json({ error: "missing_auth" }, 401) };
   const url = Deno.env.get("SUPABASE_URL");
@@ -16,5 +16,6 @@ export async function authenticatedClient(req: Request): Promise<AuthResult> {
   const client = createClient(url, key, { global: { headers: { Authorization: authorization } } });
   const { data: { user }, error } = await client.auth.getUser();
   if (error || !user) return { response: json({ error: "invalid_session" }, 401) };
+  if (bucket) { const { data: allowed, error: rateError } = await client.rpc('consume_rate_limit', { p_bucket: bucket, p_limit: 60, p_window_seconds: 60 }); if (rateError || allowed !== true) return { response: json({ error: 'rate_limited' }, 429) }; }
   return { client, user };
 }
