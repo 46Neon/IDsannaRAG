@@ -28,7 +28,10 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          gh release create "$GITHUB_REF_NAME" app/build/outputs/apk/release/app-release.apk \
-            --title "IDsanna $GITHUB_REF_NAME" \
-            --notes "APK de prueba de usabilidad del Mini-RAG IDsanna." \
-            --clobber || gh release upload "$GITHUB_REF_NAME" app/build/outputs/apk/release/app-release.apk --clobber
+          if gh release view "$GITHUB_REF_NAME" >/dev/null 2>&1; then
+            gh release upload "$GITHUB_REF_NAME" app/build/outputs/apk/release/app-release.apk --clobber
+          else
+            gh release create "$GITHUB_REF_NAME" app/build/outputs/apk/release/app-release.apk \
+              --title "IDsanna $GITHUB_REF_NAME" \
+              --notes "APK de prueba de usabilidad del Mini-RAG IDsanna."
+          fi
