@@ -2,41 +2,6 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { configuredProvider } from "../_shared/providers.ts";
 import { reserveCredits } from "../_shared/credits.ts";
 import { json, options } from "../_shared/http.ts";
-
-Deno.serve(async (request) => {
-  const preflight = options(request); if (preflight) return preflight;
-  if (request.method !== 'POST') return json({ error: 'method_not_allowed' }, 405);
-  const authorization = request.headers.get('Authorization');
-  if (!authorization?.startsWith('Bearer ')) return json({ error: 'missing_auth' }, 401);
-  const url = Deno.env.get('SUPABASE_URL'); const key = Deno.env.get('SUPABASE_ANON_KEY');
-  if (!url || !key) return json({ error: 'backend_not_configured' }, 503);
-  const db = createClient(url, key, { global: { headers: { Authorization: authorization } } });
-  const { data: { user }, error: authError } = await db.auth.getUser();
-  if (authError || !user) return json({ error: 'invalid_session' }, 401);
-  let input: { subject_id?: string; conversation_id?: string; message?: string; idempotency_key?: string; agent_id?: string };
-  try { input = await request.json(); } catch { return json({ error: 'invalid_json' }, 400); }
-  const message = input.message?.trim(); if (!input.subject_id || !message) return json({ error: 'subject_id_and_message_required' }, 400);
-  if (message.length > 12000) return json({ error: 'message_too_long' }, 413);
-  const subject = await db.from('subjects').select('id,name,description').eq('id', input.subject_id).maybeSingle();
-  if (subject.error || !subject.data) return json({ error: 'subject_not_found_or_forbidden' }, 404);
-  let conversationId = input.conversation_id;
-  if (conversationId) {
-    const existing = await db.from('conversations').select('id').eq('id', conversationId).eq('subject_id', input.subject_id).maybeSingle();
-    if (existing.error || !existing.data) return json({ error: 'conversation_not_found_or_forbidden' }, 404);
-  } else {
-    const created = await db.from('conversations').insert({ subject_id: input.subject_id, user_id: user.id, title: message.slice(0, 80) }).select('id').single();
-    if (created.error) return json({ error: 'conversation_create_failed' }, 500); conversationId = created.data.id;
-  }
-  const provider = configuredProvider(input.agent_id); if (!provider) return json({ error: 'provider_not_configured' }, 503);
-  const keyId = input.idempotency_key ?? crypto.randomUUID();
-  const reservation = await reserveCredits(db, 'chat', keyId);
-  if (!reservation.ok) return json({ error: reservation.code }, 402);
-  const userMessage = await db.from('messages').insert({ conversation_id: conversationId, user_id: user.id, role: 'user', content: message }).select('id').single();
-  if (userMessage.error) return json({ error: 'message_persist_failed' }, 500);
-  try {
-    const answer = await provider.complete({ system: `Eres IDsanna, asistente académico. Responde en español con evidencia y reconoce incertidumbre. Materia: ${subject.data.name}.`, user: message, agentId: input.agent_id });
-    const saved = await db.from('messages').insert({ conversation_id: conversationId, user_id: user.id, role: 'assistant', agent_id: 'idsanna', content: answer.text, citations: [], usage: answer.usage });
-    if (saved.error) return json({ error: 'assistant_persist_failed' }, 500);
-    return json({ ok: true, conversation_id: conversationId, message: answer.text, provider: answer.provider, model: answer.model, usage: answer.usage });
-  } catch { return json({ error: 'provider_request_failed' }, 502); }
-});
+const AGENTS=[['carlos','Carlos','analítica, estructura y pasos verificables'],['valeria','Valeria','crítica, evidencia y contradicciones'],['karla','Karla','creatividad, ejemplos y pedagogía'],['andres','Andrés','aplicación práctica y resolución'],['juan','Juan','precisión técnica y definiciones'],['monica','Mónica','síntesis, claridad y comunicación'],['julia','Julia','evaluación, metacognición y próximos pasos']] as const;
+const clean=(s:string)=>s.replace(/<[^>]*>/g,'').slice(0,12000);
+Deno.serve(async request=>{const pre=options(request);if(pre)return pre;if(request.method!=='POST')return json({error:'method_not_allowed'},405);const authorization=request.headers.get('Authorization');if(!authorization?.startsWith('Bearer '))return json({error:'missing_auth'},401);const url=Deno.env.get('SUPABASE_URL'),key=Deno.env.get('SUPABASE_ANON_KEY');if(!url||!key)return json({error:'backend_not_configured'},503);const db=createClient(url,key,{global:{headers:{Authorization:authorization}}});const {data:{user},error:authError}=await db.auth.getUser();if(authError||!user)return json({error:'invalid_session'},401);let input:{subject_id?:string;conversation_id?:string;message?:string;idempotency_key?:string;agent_id?:string};try{input=await request.json()}catch{return json({error:'invalid_json'},400)}const message=clean(input.message||'');if(!input.subject_id||!message)return json({error:'subject_id_and_message_required'},400);const subject=await db.from('subjects').select('id,name,description').eq('id',input.subject_id).maybeSingle();if(subject.error||!subject.data)return json({error:'subject_not_found_or_forbidden'},404);let conversationId=input.conversation_id;if(conversationId){const existing=await db.from('conversations').select('id').eq('id',conversationId).eq('subject_id',input.subject_id).eq('user_id',user.id).maybeSingle();if(existing.error||!existing.data)return json({error:'conversation_not_found_or_forbidden'},404)}else{const created=await db.from('conversations').insert({subject_id:input.subject_id,user_id:user.id,title:message.slice(0,80)}).select('id').single();if(created.error)return json({error:'conversation_create_failed'},500);conversationId=created.data.id}const um=await db.from('messages').insert({conversation_id:conversationId,user_id:user.id,role:'user',content:message}).select('id').single();if(um.error)return json({error:'message_persist_failed'},500);const selected=input.agent_id?AGENTS.filter(a=>a[0]===input.agent_id):AGENTS;const results=await Promise.all(selected.map(async([id,name,focus])=>{const reservation=await reserveCredits(db,`agent_${id}`,`${input.idempotency_key||crypto.randomUUID()}_${id}`,'groq','openai/gpt-oss-20b');if(!reservation.ok)return {id,name,error:'credit_unavailable'};try{const p=configuredProvider(id);if(!p)return {id,name,error:'provider_not_configured'};const answer=await p.complete({agentId:id,system:`Eres ${name}, agente académico independiente de IDsanna. Tu enfoque es ${focus}. Responde en español, distingue hechos de inferencias, usa ejemplos y no inventes fuentes. Materia: ${subject.data.name}.`,user:message});await db.from('messages').insert({conversation_id:conversationId,user_id:user.id,role:'assistant',agent_id:id,content:answer.text,citations:[],usage:answer.usage});return {id,name,text:answer.text,provider:answer.provider,model:answer.model,usage:answer.usage}}catch{return {id,name,error:'agent_failed'}}}));if(input.agent_id)return json({ok:true,conversation_id:conversationId,agent:results[0]});const successful=results.filter(x=>x.text);const synthesisPrompt=successful.map(x=>`${x.name}: ${x.text}`).join('\n\n');const general=configuredProvider('IDSANNA');let final:any={id:'idsanna',name:'IDsanna',text:'No fue posible sintetizar las respuestas.',error:'synthesis_failed'};if(general&&successful.length){try{const a=await general.complete({agentId:'IDSANNA',system:'Eres IDsanna, la agente general. Sintetiza las siete perspectivas. Señala coincidencias, contradicciones, evidencia, incertidumbre y próximos pasos. Responde en español en máximo 10 líneas salvo que el usuario pida ampliación.',user:`Pregunta: ${message}\n\nPerspectivas:\n${synthesisPrompt}`});final={id:'idsanna',name:'IDsanna',text:a.text,provider:a.provider,model:a.model,usage:a.usage};await db.from('messages').insert({conversation_id:conversationId,user_id:user.id,role:'assistant',agent_id:'idsanna',content:a.text,citations:[],usage:a.usage})}catch{}}return json({ok:true,conversation_id:conversationId,agents:results,synthesis:final,citations:[]})});
