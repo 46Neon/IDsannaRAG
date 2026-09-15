@@ -1,0 +1,10 @@
+{
+  "runtime": "idsanna",
+  "version": 1,
+  "interfaces": ["home", "suite", "chat", "profile", "access"],
+  "single_entrypoint": "idsanna-runtime",
+  "capabilities": ["auth", "feed", "crud", "metadata", "mcp", "ingest", "retrieve", "chat", "evaluation", "credits"],
+  "confirmation_required": ["browser_write", "publish", "send_message", "external_data_change"],
+  "providers": ["groq", "gemini"],
+  "source_policy": "allowlisted-read-only-by-default"
+}
