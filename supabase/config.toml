@@ -24,5 +24,8 @@ verify_jwt = true
 [functions.crud-engine]
 verify_jwt = true
 
+[functions.feed-aggregator]
+verify_jwt = false
+
 [functions.consume-credits]
 verify_jwt = true
