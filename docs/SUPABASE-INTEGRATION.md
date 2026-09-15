@@ -11,3 +11,5 @@ Antes de ejecutar en un proyecto real:
 5. Comprobar RLS con dos usuarios.
 
 Sin configuración pública real, la aplicación muestra estado pendiente y no finge persistencia.
+
+La configuración pública de Android puede contener la clave publishable del proyecto. No debe contener la clave service role ni claves de proveedores de IA. El archivo de ejemplo permanece vacío para no acoplar otros proyectos.

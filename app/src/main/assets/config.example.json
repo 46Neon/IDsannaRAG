@@ -1,6 +1,6 @@
 {
-  "supabaseUrl": "https://YOUR_PROJECT.supabase.co",
-  "supabasePublishableKey": "YOUR_PUBLIC_PUBLISHABLE_KEY",
+  "supabaseUrl": "",
+  "supabasePublishableKey": "",
   "chatFunction": "chat-orchestrator",
   "ragFunction": "rag-retrieve"
 }
