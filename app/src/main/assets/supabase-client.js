@@ -8,6 +8,7 @@ async function resetPassword(email){await loadConfig();const r=await fetch(`${st
 function signOut(){state.session=null}
 async function query(table,params=''){await loadConfig();const r=await fetch(`${state.config.supabaseUrl}/rest/v1/${table}${params}`,{headers:headers()});if(!r.ok)throw Error('DATABASE_READ_FAILED');return r.json()}
 async function insert(table,value){await loadConfig();const r=await fetch(`${state.config.supabaseUrl}/rest/v1/${table}`,{method:'POST',headers:{...headers(),Prefer:'return=representation'},body:JSON.stringify(value)});if(!r.ok)throw Error('DATABASE_WRITE_FAILED');return r.json()}
+async function update(table,id,value){await loadConfig();const r=await fetch(`${state.config.supabaseUrl}/rest/v1/${table}?id=eq.${encodeURIComponent(id)}`,{method:'PATCH',headers:{...headers(),Prefer:'return=representation'},body:JSON.stringify(value)});if(!r.ok)throw Error('DATABASE_UPDATE_FAILED');return r.json()}
 async function remove(table,id){await loadConfig();const r=await fetch(`${state.config.supabaseUrl}/rest/v1/${table}?id=eq.${encodeURIComponent(id)}`,{method:'DELETE',headers:headers()});if(!r.ok)throw Error('DATABASE_DELETE_FAILED');return true}
 async function invoke(name,body){await loadConfig();const r=await fetch(`${state.config.supabaseUrl}/functions/v1/${name}`,{method:'POST',headers:headers(),body:JSON.stringify(body)});const d=await r.json().catch(()=>({}));if(!r.ok)throw Error(d.error||'FUNCTION_FAILED');return d}
-window.idsannaSupabase={state,loadConfig,authGrant,signUp,resetPassword,signOut,query,insert,remove,invoke}})();
+window.idsannaSupabase={state,loadConfig,authGrant,signUp,resetPassword,signOut,query,insert,update,remove,invoke}})();
