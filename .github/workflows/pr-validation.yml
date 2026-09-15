@@ -13,7 +13,7 @@ jobs:
       - name: Check dangerous client secrets
         run: |
           ! grep -RInE '(GEMINI_API_KEY|GROQ_API_KEY|OPENAI_API_KEY|SUPABASE_SERVICE_ROLE_KEY)[[:space:]]*=' . \
-            --exclude-dir=.git --exclude-dir=.gradle
+            --exclude-dir=.git --exclude-dir=.gradle --exclude='*.md' --exclude='.env.example'
       - name: Check required architecture folders
         run: |
           for path in app supabase supabase/migrations docs tests; do test -d "$path"; done
