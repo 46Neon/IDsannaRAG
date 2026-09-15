@@ -1,0 +1,7 @@
+project_id = "idsanna"
+
+[functions.chat-orchestrator]
+verify_jwt = true
+
+[functions.health]
+verify_jwt = false

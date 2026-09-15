@@ -1,0 +1,3 @@
+import { authenticatedClient } from "../_shared/auth.ts";
+import { json, options } from "../_shared/http.ts";
+Deno.serve(async (req) => { const preflight = options(req); if (preflight) return preflight; if (req.method !== "POST") return json({ error: "method_not_allowed" }, 405); const auth = await authenticatedClient(req); if (auth.response) return auth.response; let body: { document_id?: string }; try { body = await req.json(); } catch { return json({ error: "invalid_json" }, 400); } if (!body.document_id) return json({ error: "document_id_required" }, 400); return json({ ok: false, code: "INGESTION_NOT_ENABLED", document_id: body.document_id }, 501); });
