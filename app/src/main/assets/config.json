@@ -1,6 +1,6 @@
 {
-  "supabaseUrl": "https://wngojaotfjztpcdijwvp.supabase.co",
-  "supabasePublishableKey": "sb_publishable_YpotEpinEWsC2dI7FIKI",
+  "supabaseUrl": "",
+  "supabasePublishableKey": "",
   "chatFunction": "chat-orchestrator",
   "ragFunction": "rag-retrieve"
 }

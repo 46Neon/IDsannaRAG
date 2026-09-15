@@ -29,7 +29,7 @@ jobs:
           done
       - name: Check required Edge Functions
         run: |
-          for fn in health chat-orchestrator rag-retrieve process-document ingest-document; do
+          for fn in health chat-orchestrator rag-retrieve process-document ingest-document complete-credit metadata-schema; do
             test -f "supabase/functions/$fn/index.ts"
           done
       - name: Reject provider secrets in Supabase client contracts
