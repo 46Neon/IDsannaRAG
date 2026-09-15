@@ -14,3 +14,7 @@ IDsanna incluye un servicio opcional y pasivo para integración nativa de accesi
 - No sustituye la interacción explícita del usuario.
 
 El servicio solo existe como puente de ciclo de vida para futuras funciones asistivas claramente visibles. Cualquier capacidad futura que interactúe con otra aplicación debe requerir confirmación explícita, tener modo simulación, registro visible y botón de detener.
+
+## Política de autonomía
+
+No se habilita automatización externa irrestricta. El proyecto solo puede evolucionar hacia acciones asistidas con simulación, allowlist, confirmación humana, auditoría y detención inmediata.
