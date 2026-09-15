@@ -48,6 +48,12 @@ public final class MainActivity extends Activity {
             @Override public WebResourceResponse shouldInterceptRequest(WebView v, String url) {
                 return loader.shouldInterceptRequest(Uri.parse(url));
             }
+            @Override public boolean shouldOverrideUrlLoading(WebView v, WebResourceRequest request) {
+                return openGmail(request.getUrl().toString());
+            }
+            @Override public boolean shouldOverrideUrlLoading(WebView v, String url) {
+                return openGmail(url);
+            }
         });
         view.setWebChromeClient(new WebChromeClient() {
             @Override public boolean onShowFileChooser(WebView v, ValueCallback<Uri[]> callback,
@@ -65,6 +71,16 @@ public final class MainActivity extends Activity {
             }
         });
         view.loadUrl("https://appassets.androidplatform.net/assets/index.html");
+    }
+
+    private boolean openGmail(String url) {
+        if (!url.startsWith("https://mail.google.com/")) return false;
+        Intent gmail = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
+        gmail.setPackage("com.google.android.gm");
+        try { startActivity(gmail); } catch (ActivityNotFoundException error) {
+            startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(url)));
+        }
+        return true;
     }
 
     @Override protected void onActivityResult(int requestCode, int resultCode, Intent data) {
