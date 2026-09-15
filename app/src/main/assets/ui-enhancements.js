@@ -32,4 +32,7 @@
   document.querySelectorAll('.view h1').forEach(title=>{if(!title.id)title.id=`${title.closest('.view')?.id}-title`;title.setAttribute('tabindex','-1')});
   document.querySelectorAll('[data-v]').forEach(link=>link.addEventListener('click',()=>setTimeout(()=>document.querySelector(`#${link.dataset.v} h1`)?.focus(),30)));
   document.querySelectorAll('.panel:empty,.card:empty').forEach(box=>{box.classList.add('empty-state');box.innerHTML='<strong>Aún no hay información</strong><span>Cuando completes una actividad, aparecerá aquí.</span>'});
+  const routes=['home','suite','chat','profile','access'];let swipeX=0;
+  document.addEventListener('touchstart',event=>{if(event.target.closest('input,textarea,button,a'))return;swipeX=event.changedTouches[0].screenX},{passive:true});
+  document.addEventListener('touchend',event=>{if(!swipeX||event.target.closest('input,textarea,button,a'))return;const dx=event.changedTouches[0].screenX-swipeX;swipeX=0;if(Math.abs(dx)<80)return;const current=routes.findIndex(id=>document.getElementById(id)?.classList.contains('active'));if(current<0)return;const next=(current+(dx<0?1:routes.length-1))%routes.length;window.go?.(routes[next])},{passive:true});
 })();
