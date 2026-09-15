@@ -24,6 +24,10 @@ jobs:
         uses: supabase/setup-cli@v1
         with:
           version: latest
+      - name: Preflight credentials
+        run: test -n "${SUPABASE_ACCESS_TOKEN:-}"
+        env:
+          SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
       - name: Link project
         run: supabase link --project-ref "${{ secrets.SUPABASE_PROJECT_REF || 'wngojaotfjztpcdijwvp' }}"
         env:
