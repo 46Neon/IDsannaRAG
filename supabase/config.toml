@@ -27,5 +27,8 @@ verify_jwt = true
 [functions.feed-aggregator]
 verify_jwt = false
 
+[functions.idsanna-runtime]
+verify_jwt = true
+
 [functions.consume-credits]
 verify_jwt = true
