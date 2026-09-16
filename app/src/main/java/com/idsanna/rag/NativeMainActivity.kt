@@ -28,11 +28,11 @@ class NativeMainActivity : AppCompatActivity() {
     private var token: String? = null
     private var downX = 0f
     private var screenIndex = 0
-    private val teal = Color.rgb(101,230,210)
-    private val bg = Color.rgb(7,17,31)
-    private val card = Color.rgb(19,43,69)
-    private val white = Color.rgb(244,248,255)
-    private val muted = Color.rgb(159,178,204)
+    private val teal = Color.rgb(167,139,250)
+    private val bg = Color.rgb(13,16,32)
+    private val card = Color.rgb(27,30,59)
+    private val white = Color.rgb(248,247,255)
+    private val muted = Color.rgb(183,185,211)
 
     override fun onCreate(state: Bundle?) { super.onCreate(state); token=getPreferences(0).getString("token",null); renderShell(); showHome() }
     private fun renderShell(){ root=LinearLayout(this).apply{orientation=LinearLayout.VERTICAL;setBackgroundColor(bg);setPadding(24,20,24,16)}; content=FrameLayout(this); root.addView(content,LinearLayout.LayoutParams(-1,0,1f)); setContentView(root) }
