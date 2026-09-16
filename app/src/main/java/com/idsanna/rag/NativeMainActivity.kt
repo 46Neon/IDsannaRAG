@@ -38,8 +38,8 @@ class NativeMainActivity : AppCompatActivity() {
     private fun renderShell(){ root=LinearLayout(this).apply{orientation=LinearLayout.VERTICAL;setBackgroundColor(bg);setPadding(24,20,24,16)}; content=FrameLayout(this); root.addView(content,LinearLayout.LayoutParams(-1,0,1f)); setContentView(root) }
     private fun title(text:String, size:Float=30f)=TextView(this).apply{this.text=text;setTextColor(white);textSize=size;setTypeface(null,1);setPadding(0,8,0,8)}
     private fun body(text:String)=TextView(this).apply{this.text=text;setTextColor(muted);textSize=15f;setPadding(0,4,0,12)}
-    private fun button(text:String, action:()->Unit)=MaterialButton(this).apply{this.text=text;setOnClickListener{isEnabled=false;action();postDelayed({isEnabled=true},1200)}}
-    private fun panel():MaterialCardView=MaterialCardView(this).apply{setCardBackgroundColor(card);radius=22f;cardElevation=2f;setContentPadding(20,18,20,18)}
+    private fun button(text:String, action:()->Unit)=MaterialButton(this).apply{this.text=text;isAllCaps=false;cornerRadius=16;setOnClickListener{isEnabled=false;action();postDelayed({isEnabled=true},1200)}}
+    private fun panel():MaterialCardView=MaterialCardView(this).apply{setCardBackgroundColor(card);radius=28f;cardElevation=5f;setContentPadding(20,18,20,18)}
     private fun show(view:View){content.removeAllViews();content.addView(view,FrameLayout.LayoutParams(-1,-1));content.setOnTouchListener{_,event->when(event.action){android.view.MotionEvent.ACTION_DOWN->{downX=event.x;false};android.view.MotionEvent.ACTION_UP->{val dx=event.x-downX;if(kotlin.math.abs(dx)>90){if(dx<0)nextScreen() else previousScreen()};false};else->false}};content.requestFocus()}
     private fun nextScreen(){screenIndex=(screenIndex+1)%4;when(screenIndex){0->showHome();1->showSubjects();2->showChat();else->showProfile()}}
     private fun previousScreen(){screenIndex=(screenIndex+3)%4;when(screenIndex){0->showHome();1->showSubjects();2->showChat();else->showProfile()}}
