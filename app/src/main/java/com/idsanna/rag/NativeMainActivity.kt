@@ -36,7 +36,7 @@ class NativeMainActivity : AppCompatActivity() {
 
     override fun onCreate(state: Bundle?) { super.onCreate(state); token=getPreferences(0).getString("token",null); renderShell(); showHome() }
     private fun renderShell(){ root=LinearLayout(this).apply{orientation=LinearLayout.VERTICAL;setBackgroundColor(bg);setPadding(24,20,24,16)}; content=FrameLayout(this); root.addView(content,LinearLayout.LayoutParams(-1,0,1f)); setContentView(root) }
-    private fun title(text:String, size:Float=30f)=TextView(this).apply{this.text=text;setTextColor(white);textSize=size;setTypeface(null,1);setPadding(0,8,0,8)}
+    private fun title(text:String, size:Float=30f)=TextView(this).apply{this.text=text;setTextColor(white);textSize=size;setTypeface(null,android.graphics.Typeface.BOLD);setPadding(0,8,0,8)}
     private fun body(text:String)=TextView(this).apply{this.text=text;setTextColor(muted);textSize=15f;setPadding(0,4,0,12)}
     private fun button(text:String, action:()->Unit)=MaterialButton(this).apply{this.text=text;isAllCaps=false;cornerRadius=16;backgroundTintList=android.content.res.ColorStateList.valueOf(Color.WHITE);setTextColor(Color.BLACK);setOnClickListener{isEnabled=false;action();postDelayed({isEnabled=true},1200)}}
     private fun panel():MaterialCardView=MaterialCardView(this).apply{setCardBackgroundColor(card);radius=28f;cardElevation=5f;setContentPadding(20,18,20,18)}
